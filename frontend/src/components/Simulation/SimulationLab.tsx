@@ -10,8 +10,8 @@ export const SimulationLab: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
-      {/* Top Banner */}
+    <div className="h-full overflow-y-scroll scrollbar-thin">
+      <div className="space-y-6 max-w-7xl mx-auto pb-12 px-6 pt-6">
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden border border-indigo-900/50 shadow-2xl">
         <div className="absolute right-0 top-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 space-y-3">
@@ -114,6 +114,7 @@ export const SimulationLab: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

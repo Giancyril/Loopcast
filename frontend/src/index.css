@@ -1,4 +1,10 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
+
+/* Prevent scrollbar-caused layout shift globally */
+html, body {
+  scrollbar-gutter: stable;
+}
+
 
 /* --- Design Token Layer --------------------------------------- */
 @layer base {

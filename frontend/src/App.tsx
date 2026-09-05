@@ -218,7 +218,7 @@ const AppInner: React.FC = () => {
         isSyncing={isSyncing}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{scrollbarGutter: 'stable'}}>
         {currentTab === "queue" && (
           <ApprovalQueue
             posts={posts.filter((p) => p.status === "pending_approval")}
