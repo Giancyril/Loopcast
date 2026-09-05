@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -9,6 +9,7 @@ from backend.app.api.posts import router as posts_router
 from backend.app.api.platforms import router as platforms_router
 from backend.app.api.scheduler import router as scheduler_router
 from backend.app.api.personas import router as personas_router
+from backend.app.api.best_times import router as best_times_router
 from backend.app.services.scheduler_service import SchedulerService
 import backend.app.models.social
 
@@ -43,6 +44,7 @@ app.include_router(posts_router, prefix=settings.API_V1_STR)
 app.include_router(platforms_router, prefix=settings.API_V1_STR)
 app.include_router(scheduler_router, prefix=settings.API_V1_STR)
 app.include_router(personas_router, prefix=settings.API_V1_STR)
+app.include_router(best_times_router, prefix=settings.API_V1_STR)
 
 @app.get("/health")
 def health_check():
@@ -60,3 +62,4 @@ def root():
         "docs": "/docs",
         "health": "/health"
     }
+
