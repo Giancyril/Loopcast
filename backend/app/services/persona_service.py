@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Any
+﻿from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 from backend.app.models.social import Persona
 from backend.app.schemas.social import PersonaCreate, PersonaUpdate
@@ -73,6 +73,12 @@ class PersonaService:
         """Seeds default persona archetypes if none exist in the database."""
         count = db.query(Persona).count()
         if count > 0:
+            has_default = db.query(Persona).filter(Persona.is_default == True).first()
+            if not has_default:
+                founder = db.query(Persona).filter(Persona.name.like("%Founder%")).first() or db.query(Persona).first()
+                if founder:
+                    founder.is_default = True
+                    db.commit()
             return db.query(Persona).all()
         
         created = []
