@@ -62,7 +62,10 @@ class SchedulerService:
                         continue
                     try:
                         adapter = PlatformManager.get_adapter(platform_name, db=db)
-                        res = adapter.publish(text)
+                        if post.is_thread and post.thread_tweets and hasattr(adapter, "publish_thread"):
+                            res = adapter.publish_thread(post.thread_tweets)
+                        else:
+                            res = adapter.publish(text)
                         publish_results[platform_name] = res
                     except Exception as e:
                         all_succeeded = False
