@@ -70,26 +70,30 @@ class PersonaService:
 
     @staticmethod
     def ensure_default_personas(db: Session) -> List[Persona]:
-        """Seeds default persona archetypes if none exist in the database."""
-        count = db.query(Persona).count()
-        if count > 0:
-            has_default = db.query(Persona).filter(Persona.is_default == True).first()
-            if not has_default:
-                founder = db.query(Persona).filter(Persona.name.like("%Founder%")).first() or db.query(Persona).first()
-                if founder:
-                    founder.is_default = True
-                    db.commit()
-            return db.query(Persona).all()
-        
-        created = []
-        for arch in DEFAULT_ARCHETYPES:
-            p = Persona(**arch)
-            db.add(p)
-            created.append(p)
-        db.commit()
-        for p in created:
-            db.refresh(p)
-        return created
+        """Seeds default persona archetypes if any of the 4 defaults are missing."""
+        existing_archetypes = {p.archetype for p in db.query(Persona).all()}
+        default_archetypes = {a["archetype"] for a in DEFAULT_ARCHETYPES}
+        missing = default_archetypes - existing_archetypes
+
+        if missing:
+            for arch in DEFAULT_ARCHETYPES:
+                if arch["archetype"] in missing:
+                    p = Persona(**arch)
+                    db.add(p)
+            db.commit()
+
+        # Ensure at least one default is flagged
+        has_default = db.query(Persona).filter(Persona.is_default == True).first()
+        if not has_default:
+            founder = (
+                db.query(Persona).filter(Persona.name.like("%Founder%")).first()
+                or db.query(Persona).first()
+            )
+            if founder:
+                founder.is_default = True
+                db.commit()
+
+        return db.query(Persona).all()
 
     @staticmethod
     def get_personas(db: Session) -> List[Persona]:
@@ -136,3 +140,4 @@ class PersonaService:
         db.delete(p)
         db.commit()
         return True
+

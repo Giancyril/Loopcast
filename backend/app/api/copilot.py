@@ -13,11 +13,11 @@ router = APIRouter()
 
 
 class RefineRequest(BaseModel):
-    copy: str = Field(..., min_length=1)
-    action: Optional[str] = Field(None, example="sharpen_hook")
-    custom_instruction: Optional[str] = Field(None, example="Make it sound like a senior software architect")
-    platform: str = Field("twitter", example="twitter")
-    tone: Optional[str] = Field(None, example="technical")
+    text: str = Field(..., min_length=1)
+    action: Optional[str] = Field(None, json_schema_extra={"example": "sharpen_hook"})
+    custom_instruction: Optional[str] = Field(None, json_schema_extra={"example": "Make it sound like a senior software architect"})
+    platform: str = Field("twitter", json_schema_extra={"example": "twitter"})
+    tone: Optional[str] = Field(None, json_schema_extra={"example": "technical"})
 
 
 class RefineResponse(BaseModel):
@@ -31,8 +31,8 @@ class RefineResponse(BaseModel):
 
 
 class DiagnoseRequest(BaseModel):
-    copy: str = Field(..., min_length=1)
-    platform: str = Field("twitter", example="twitter")
+    text: str = Field(..., min_length=1)
+    platform: str = Field("twitter", json_schema_extra={"example": "twitter"})
 
 
 class DiagnoseResponse(BaseModel):
@@ -50,7 +50,7 @@ class DiagnoseResponse(BaseModel):
 @router.post("/copilot/refine", response_model=RefineResponse, summary="Refine post copy with Copilot")
 async def refine_endpoint(payload: RefineRequest) -> RefineResponse:
     res = refine_copy(
-        copy=payload.copy,
+        copy=payload.text,
         action=payload.action,
         custom_instruction=payload.custom_instruction,
         platform=payload.platform,
@@ -61,5 +61,5 @@ async def refine_endpoint(payload: RefineRequest) -> RefineResponse:
 
 @router.post("/copilot/diagnose", response_model=DiagnoseResponse, summary="Diagnose copy readability and hook")
 async def diagnose_endpoint(payload: DiagnoseRequest) -> DiagnoseResponse:
-    res = diagnose_copy(text=payload.copy, platform=payload.platform)
+    res = diagnose_copy(text=payload.text, platform=payload.platform)
     return DiagnoseResponse(**res)

@@ -12,14 +12,14 @@ router = APIRouter()
 
 
 class VariantInput(BaseModel):
-    variant_id: str = Field(..., example="var-a")
-    hook_text: str = Field(..., example="99% of creators fail because they ignore this 1 metric.")
-    hook_type: str = Field("bold_claim", example="bold_claim")
+    variant_id: str = Field(..., json_schema_extra={"example": "var-a"})
+    hook_text: str = Field(..., json_schema_extra={"example": "99% of creators fail because they ignore this 1 metric."})
+    hook_type: str = Field("bold_claim", json_schema_extra={"example": "bold_claim"})
 
 
 class ABTestRequest(BaseModel):
-    variants: List[VariantInput] = Field(..., min_items=1)
-    platform: str = Field("twitter", example="twitter")
+    variants: List[VariantInput] = Field(..., min_length=1)
+    platform: str = Field("twitter", json_schema_extra={"example": "twitter"})
 
 
 class ABTestResponse(BaseModel):
