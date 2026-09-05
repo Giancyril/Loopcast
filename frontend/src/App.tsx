@@ -5,7 +5,7 @@ import { ApprovalQueue } from "./components/ApprovalQueue/ApprovalQueue";
 import { CalendarView } from "./components/Calendar/CalendarView";
 import { AccountsView } from "./components/Accounts/AccountsView";
 import { AnalyticsView } from "./components/Analytics/AnalyticsView";
-import { VoiceStudio } from "./components/VoiceStudio/VoiceStudio";
+import { VoiceStudio } from "./components/VoiceStudio/VoiceStudio";`nimport { SimulationLab } from "./components/Simulation/SimulationLab";
 import { ComposerModal } from "./components/Composer/ComposerModal";
 import { FeedbackModal } from "./components/ApprovalQueue/FeedbackModal";
 import { ScheduleModal } from "./components/ApprovalQueue/ScheduleModal";`nimport { CopilotDrawer } from "./components/Copilot/CopilotDrawer";
@@ -239,7 +239,7 @@ const AppInner: React.FC = () => {
           />
         )}
 
-        {currentTab === "analytics" && <AnalyticsView posts={posts} />}
+        {currentTab === "simulation" && <SimulationLab />}`n`n        {currentTab === "analytics" && <AnalyticsView posts={posts} />}
 
         {currentTab === "accounts" && (
           <AccountsView
@@ -288,3 +288,4 @@ export const App: React.FC = () => (
 );
 
 export default App;
+

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   Mic,
   Inbox,
@@ -7,9 +7,10 @@ import {
   Share2,
   RefreshCw,
   BarChart2,
+  FlaskConical,
 } from "lucide-react";
 
-export type NavTab = "queue" | "calendar" | "personas" | "analytics" | "accounts";
+export type NavTab = "queue" | "calendar" | "personas" | "simulation" | "analytics" | "accounts";
 
 interface SidebarProps {
   currentTab: NavTab;
@@ -28,7 +29,7 @@ const NAV_ITEMS: {
 }[] = [
     { id: "queue", label: "Approval Queue", icon: Inbox, badgeKey: "pendingCount" },
     { id: "calendar", label: "Calendar", icon: CalendarDays },
-    { id: "personas", label: "Voice Studio", icon: Mic },
+    { id: "personas", label: "Voice Studio", icon: Mic },`n    { id: "simulation", label: "Simulation Lab", icon: FlaskConical },
     { id: "analytics", label: "Analytics", icon: BarChart2 },
     { id: "accounts", label: "Connected Accounts", icon: Share2 },
   ];
@@ -102,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Footer ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â System Status */}
+      {/* Footer ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â System Status */}
       <div className="p-4 border-t border-slate-100 bg-slate-50/60">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center space-x-1.5">
@@ -130,3 +131,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </aside>
   );
 };
+
