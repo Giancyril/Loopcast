@@ -11,6 +11,7 @@ from backend.app.api.scheduler import router as scheduler_router
 from backend.app.api.personas import router as personas_router
 from backend.app.api.best_times import router as best_times_router
 from backend.app.api.simulation import router as simulation_router
+from backend.app.api.copilot import router as copilot_router
 from backend.app.services.scheduler_service import SchedulerService
 import backend.app.models.social
 
@@ -47,6 +48,7 @@ app.include_router(scheduler_router, prefix=settings.API_V1_STR)
 app.include_router(personas_router, prefix=settings.API_V1_STR)
 app.include_router(best_times_router, prefix=settings.API_V1_STR)
 app.include_router(simulation_router, prefix=settings.API_V1_STR)
+app.include_router(copilot_router, prefix=settings.API_V1_STR)
 
 @app.get("/health")
 def health_check():
@@ -64,5 +66,6 @@ def root():
         "docs": "/docs",
         "health": "/health"
     }
+
 
 
