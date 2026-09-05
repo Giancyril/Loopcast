@@ -1,4 +1,4 @@
-# AI Social Media Agent
+# Loopcast — Autonomous AI Social Media Agent
 
 An autonomous yet human-governed AI Social Media Agent that generates, self-critiques, adapts, schedules, and publishes content across social platforms with a human approval loop.
 

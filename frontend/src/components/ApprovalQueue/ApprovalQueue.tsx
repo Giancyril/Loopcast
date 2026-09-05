@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Post } from '../../types';
 import { ApprovalCard } from './ApprovalCard';
-import { CheckCircle2, Sparkles } from 'lucide-react';
+import { CheckCircle2, Inbox } from 'lucide-react';
 
 interface ApprovalQueueProps {
   posts: Post[];
@@ -28,11 +28,12 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
   });
 
   return (
-    <div className="flex-1 overflow-y-auto p-8 max-w-5xl mx-auto w-full">
+    <div className="flex-1 overflow-y-auto p-8 max-w-6xl mx-auto w-full">
       {/* View Header */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <Inbox className="w-5 h-5 text-indigo-600" />
             <span>Approval Queue</span>
             {posts.length > 0 && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
@@ -49,31 +50,28 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
         <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg">
           <button
             onClick={() => setPlatformFilter('all')}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-              platformFilter === 'all'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${platformFilter === 'all'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             All Platforms
           </button>
           <button
             onClick={() => setPlatformFilter('twitter')}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-              platformFilter === 'twitter'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${platformFilter === 'twitter'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             X (Twitter)
           </button>
           <button
             onClick={() => setPlatformFilter('linkedin')}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-              platformFilter === 'linkedin'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${platformFilter === 'linkedin'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             LinkedIn
           </button>
@@ -96,7 +94,7 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
             onClick={onOpenComposer}
             className="flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
           >
-            <Sparkles className="w-4 h-4" />
+
             <span>Generate New Post</span>
           </button>
         </div>
