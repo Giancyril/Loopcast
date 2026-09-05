@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect, useCallback } from "react";
 import { Sidebar, type NavTab } from "./components/Layout/Sidebar";
 import { ToastProvider, useToast } from "./components/Layout/ToastProvider";
 import { ApprovalQueue } from "./components/ApprovalQueue/ApprovalQueue";
@@ -8,7 +8,7 @@ import { AnalyticsView } from "./components/Analytics/AnalyticsView";
 import { VoiceStudio } from "./components/VoiceStudio/VoiceStudio";
 import { ComposerModal } from "./components/Composer/ComposerModal";
 import { FeedbackModal } from "./components/ApprovalQueue/FeedbackModal";
-import { ScheduleModal } from "./components/ApprovalQueue/ScheduleModal";
+import { ScheduleModal } from "./components/ApprovalQueue/ScheduleModal";`nimport { CopilotDrawer } from "./components/Copilot/CopilotDrawer";
 import { api } from "./services/api";
 import type { Post, PlatformConnection, GenerateParams, Persona } from "./types";
 
@@ -22,7 +22,7 @@ const AppInner: React.FC = () => {
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [feedbackPost, setFeedbackPost] = useState<Post | null>(null);
   const [schedulePost, setSchedulePost] = useState<Post | null>(null);
-  const [isModalActionLoading, setIsModalActionLoading] = useState(false);
+  const [isModalActionLoading, setIsModalActionLoading] = useState(false);`n  const [copilotState, setCopilotState] = useState<{ isOpen: boolean; post: Post | null; text: string }>({ isOpen: false, post: null, text: "" });
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -170,6 +170,21 @@ const AppInner: React.FC = () => {
   };
 
   // Persona Handlers
+    const handleOpenCopilot = (post: Post, currentCopy: string) => {
+    setCopilotState({ isOpen: true, post, text: currentCopy });
+  };
+
+  const handleApplyCopilot = (newText: string) => {
+    if (copilotState.post) {
+      const activePlat = Object.keys(copilotState.post.platform_content || {})[0] || "twitter";
+      handleSaveEdit(copilotState.post.id, {
+        ...(copilotState.post.platform_content || {}),
+        [activePlat]: newText,
+      });
+      toast("Copilot refinement applied to draft!", "success");
+    }
+  };
+
   const handleUpdatePersona = async (id: string, updates: Partial<Persona>) => {
     await api.updatePersona(id, updates);
     await fetchPersonas();
@@ -193,7 +208,7 @@ const AppInner: React.FC = () => {
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
         pendingCount={pendingCount}
-        onOpenComposer={() => setIsComposerOpen(true)}
+        onOpenComposer={() => setIsComposerOpen(true)}`n            onOpenCopilot={handleOpenCopilot}
         onTriggerSync={handleTriggerSync}
         isSyncing={isSyncing}
       />
@@ -206,7 +221,7 @@ const AppInner: React.FC = () => {
             onRequestFeedback={(post) => setFeedbackPost(post)}
             onSaveEdit={handleSaveEdit}
             onRejectDirect={handleRejectDirect}
-            onOpenComposer={() => setIsComposerOpen(true)}
+            onOpenComposer={() => setIsComposerOpen(true)}`n            onOpenCopilot={handleOpenCopilot}
           />
         )}
 
@@ -256,8 +271,14 @@ const AppInner: React.FC = () => {
         onApprove={handleApprove}
         isSubmitting={isModalActionLoading}
       />
-    </div>
-  );
+      <CopilotDrawer
+        isOpen={copilotState.isOpen}
+        onClose={() => setCopilotState(prev => ({ ...prev, isOpen: false }))}
+        originalText={copilotState.text}
+        platform="twitter"
+        onApplyRefinedText={handleApplyCopilot}
+      />
+    </div>);
 };
 
 export const App: React.FC = () => (

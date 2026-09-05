@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type { Post } from '../../types';
 import { ApprovalCard } from './ApprovalCard';
 import { CheckCircle2, Inbox } from 'lucide-react';
@@ -10,6 +10,7 @@ interface ApprovalQueueProps {
   onSaveEdit: (postId: string, platformContent: Record<string, string>) => void;
   onRejectDirect: (post: Post) => void;
   onOpenComposer: () => void;
+  onOpenCopilot?: (post: Post, currentCopy: string) => void;
 }
 
 export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
@@ -19,6 +20,7 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
   onSaveEdit,
   onRejectDirect,
   onOpenComposer,
+  onOpenCopilot,
 }) => {
   const [platformFilter, setPlatformFilter] = useState<'all' | 'twitter' | 'linkedin'>('all');
 
@@ -108,6 +110,7 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
               onRequestFeedback={onRequestFeedback}
               onSaveEdit={onSaveEdit}
               onRejectDirect={onRejectDirect}
+              onOpenCopilot={onOpenCopilot}
             />
           ))}
         </div>
@@ -115,3 +118,4 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
     </div>
   );
 };
+
