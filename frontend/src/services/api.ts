@@ -1,4 +1,4 @@
-import type { Post, PlatformConnection, GenerateParams } from '../types';
+import type { Post, PlatformConnection, GenerateParams, Persona } from '../types';
 
 const API_BASE = '/api/v1';
 
@@ -78,5 +78,39 @@ export const api = {
     });
     if (!res.ok) throw new Error(`Scheduler trigger failed: ${res.statusText}`);
     return res.json();
+  },
+
+  // Persona & Voice Studio APIs
+  async getPersonas(): Promise<Persona[]> {
+    const res = await fetch(`${API_BASE}/personas`);
+    if (!res.ok) throw new Error(`Failed to fetch personas: ${res.statusText}`);
+    return res.json();
+  },
+
+  async createPersona(payload: Partial<Persona>): Promise<Persona> {
+    const res = await fetch(`${API_BASE}/personas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Create persona failed: ${res.statusText}`);
+    return res.json();
+  },
+
+  async updatePersona(id: string, payload: Partial<Persona>): Promise<Persona> {
+    const res = await fetch(`${API_BASE}/personas/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Update persona failed: ${res.statusText}`);
+    return res.json();
+  },
+
+  async deletePersona(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/personas/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error(`Delete persona failed: ${res.statusText}`);
   },
 };

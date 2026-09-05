@@ -13,14 +13,41 @@ export interface Critique {
   strengths?: string[];
   weaknesses?: string[];
   recommendations?: string;
+  voice_match_score?: number;
+}
+
+export interface ToneAttributes {
+  wit: number;
+  formality: number;
+  provocation: number;
+  technical_depth: number;
+  [key: string]: number;
+}
+
+export interface Persona {
+  id: string;
+  name: string;
+  handle_or_tag?: string | null;
+  bio?: string | null;
+  archetype: 'founder' | 'explainer' | 'growth_hacker' | 'executive' | string;
+  tone_attributes: ToneAttributes;
+  banned_words: string[];
+  sample_hooks: string[];
+  target_audience: string;
+  is_default: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Post {
   id: string;
   topic: string;
   tone: string;
+  persona_id?: string | null;
+  persona?: Persona | null;
   raw_content?: string;
   platform_content: Record<string, string>;
+  thread_tweets?: string[];
   status: PostStatus;
   critique: Critique;
   thread_id?: string;
@@ -45,5 +72,6 @@ export interface PlatformConnection {
 export interface GenerateParams {
   topic: string;
   tone: string;
+  persona_id?: string | null;
   target_platforms: string[];
 }
