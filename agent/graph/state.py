@@ -3,6 +3,7 @@ from typing import TypedDict, List, Dict, Any, Optional
 class AgentState(TypedDict):
     topic: str
     tone: str
+    persona_dna: Optional[Dict[str, Any]]
     target_platforms: List[str]
     raw_draft: str
     critique: Dict[str, Any]

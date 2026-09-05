@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
-from backend.app.models.social import Post, ApprovalLog
+from backend.app.models.social import Post, ApprovalLog, Persona
 from agent.graph.workflow import run_agent_generation, resume_agent_with_feedback
 
 class PostService:
@@ -11,13 +11,39 @@ class PostService:
         db: Session,
         topic: str,
         tone: str = "engaging",
-        target_platforms: List[str] = None
+        target_platforms: List[str] = None,
+        persona_id: Optional[str] = None
     ) -> Post:
         """Invokes LangGraph agent to generate draft and stores as pending_approval."""
+        persona_dna = None
+        if persona_id:
+            persona = db.query(Persona).filter(Persona.id == persona_id).first()
+            if persona:
+                persona_dna = {
+                    "name": persona.name,
+                    "archetype": persona.archetype,
+                    "tone_attributes": persona.tone_attributes,
+                    "banned_words": persona.banned_words,
+                    "sample_hooks": persona.sample_hooks,
+                    "target_audience": persona.target_audience
+                }
+        else:
+            default_persona = db.query(Persona).filter(Persona.is_default == True).first()
+            if default_persona:
+                persona_dna = {
+                    "name": default_persona.name,
+                    "archetype": default_persona.archetype,
+                    "tone_attributes": default_persona.tone_attributes,
+                    "banned_words": default_persona.banned_words,
+                    "sample_hooks": default_persona.sample_hooks,
+                    "target_audience": default_persona.target_audience
+                }
+
         agent_res = run_agent_generation(
             topic=topic,
             tone=tone,
-            target_platforms=target_platforms or ["twitter", "linkedin"]
+            target_platforms=target_platforms or ["twitter", "linkedin"],
+            persona_dna=persona_dna
         )
         
         thread_id = agent_res["thread_id"]
@@ -26,6 +52,7 @@ class PostService:
         post = Post(
             topic=topic,
             tone=tone,
+            persona_id=persona_id,
             raw_content=state.get("raw_draft", ""),
             platform_content=state.get("platform_posts", {}),
             status="pending_approval",
@@ -107,16 +134,19 @@ class PostService:
         post_id: str,
         platform_content: Dict[str, str]
     ) -> Post:
-        """Edits platform-specific content before approval."""
+        """Human reviewer directly edits the copy before approving."""
         post = db.query(Post).filter(Post.id == post_id).first()
         if not post:
             raise ValueError(f"Post {post_id} not found")
 
+        old_content = post.platform_content or {}
         post.platform_content = platform_content
+
         log = ApprovalLog(
             post_id=post.id,
             action="edited",
-            reviewer_feedback="User made inline manual adjustments before approving."
+            reviewer_feedback="Direct copy edits applied by human reviewer",
+            diff_content={"before": old_content, "after": platform_content}
         )
         db.add(log)
         db.commit()
@@ -124,16 +154,20 @@ class PostService:
         return post
 
     @staticmethod
-    def list_posts(
-        db: Session,
-        status: Optional[str] = None
-    ) -> List[Post]:
-        """Lists posts, optionally filtered by status."""
+    def get_post(db: Session, post_id: str) -> Optional[Post]:
+        return db.query(Post).filter(Post.id == post_id).first()
+
+    @staticmethod
+    def get_pending_posts(db: Session) -> List[Post]:
+        return db.query(Post).filter(Post.status == "pending_approval").order_by(Post.created_at.desc()).all()
+
+    @staticmethod
+    def list_posts(db: Session, status: Optional[str] = None) -> List[Post]:
+        return PostService.get_all_posts(db=db, status=status)
+
+    @staticmethod
+    def get_all_posts(db: Session, status: Optional[str] = None) -> List[Post]:
         query = db.query(Post)
         if status:
             query = query.filter(Post.status == status)
         return query.order_by(Post.created_at.desc()).all()
-
-    @staticmethod
-    def get_post(db: Session, post_id: str) -> Optional[Post]:
-        return db.query(Post).filter(Post.id == post_id).first()

@@ -24,7 +24,8 @@ def generate_post_endpoint(
             db=db,
             topic=req.topic,
             tone=req.tone,
-            target_platforms=req.target_platforms
+            target_platforms=req.target_platforms,
+            persona_id=req.persona_id
         )
         return post
     except Exception as e:
