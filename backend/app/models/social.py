@@ -15,8 +15,8 @@ class Persona(Base):
     handle_or_tag = Column(String(50), nullable=True)
     bio = Column(Text, nullable=True)
     archetype = Column(String(50), default="founder")  # founder, explainer, growth_hacker, executive
-    tone_attributes = Column(JSON, default=dict)  # {"wit": 75, "formality": 30, "provocation": 60, "technical_depth": 80}
-    banned_words = Column(JSON, default=list)  # ["delve", "game-changer", "unleash"]
+    tone_attributes = Column(JSON, default=dict)
+    banned_words = Column(JSON, default=list)
     sample_hooks = Column(JSON, default=list)
     target_audience = Column(String(255), default="Tech Builders & Creators")
     is_default = Column(Boolean, default=False)
@@ -32,7 +32,10 @@ class Post(Base):
     persona_id = Column(String(36), ForeignKey("personas.id"), nullable=True)
     raw_content = Column(Text, nullable=True)
     platform_content = Column(JSON, default=dict)  # {"twitter": "...", "linkedin": "..."}
-    status = Column(String(50), default="pending_approval", index=True)  # pending_approval, approved, scheduled, published, rejected
+    is_thread = Column(Boolean, default=False)
+    thread_tweets = Column(JSON, default=list)  # ["1/N ...", "2/N ..."]
+    carousel_slides = Column(JSON, default=list)  # [{"slide": 1, "title": "...", "content": "..."}]
+    status = Column(String(50), default="pending_approval", index=True)
     critique = Column(JSON, default=dict)
     thread_id = Column(String(64), nullable=True, index=True)
     scheduled_for = Column(DateTime, nullable=True, index=True)
@@ -48,7 +51,7 @@ class PlatformConnection(Base):
     __tablename__ = "platform_connections"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    platform = Column(String(50), nullable=False, index=True)  # twitter, linkedin
+    platform = Column(String(50), nullable=False, index=True)
     account_name = Column(String(255), nullable=False)
     account_handle = Column(String(255), nullable=True)
     access_token_enc = Column(Text, nullable=True)
@@ -63,7 +66,7 @@ class ApprovalLog(Base):
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     post_id = Column(String(36), ForeignKey("posts.id"), nullable=False, index=True)
-    action = Column(String(50), nullable=False)  # created, approved, rejected, edited, published, failed
+    action = Column(String(50), nullable=False)
     reviewer_feedback = Column(Text, nullable=True)
     diff_content = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

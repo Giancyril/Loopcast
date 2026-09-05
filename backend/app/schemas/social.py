@@ -43,6 +43,7 @@ class GenerateRequest(BaseModel):
     tone: str = Field("engaging", description="Desired tone: engaging, professional, humorous, authoritative")
     persona_id: Optional[str] = Field(None, description="Optional persona ID to enforce voice DNA")
     target_platforms: List[str] = Field(default_factory=lambda: ["twitter", "linkedin"])
+    generate_thread: bool = Field(False, description="Generate multi-tweet thread and LinkedIn carousel breakdown")
 
 class PostApproveRequest(BaseModel):
     scheduled_for: Optional[datetime] = None
@@ -52,6 +53,8 @@ class PostRejectRequest(BaseModel):
 
 class PostEditRequest(BaseModel):
     platform_content: Dict[str, str] = Field(..., description="Updated text for each platform")
+    thread_tweets: Optional[List[str]] = Field(None, description="Updated sequential tweets for thread")
+    carousel_slides: Optional[List[Dict[str, Any]]] = Field(None, description="Updated LinkedIn carousel breakdown")
 
 class ApprovalLogResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -70,6 +73,9 @@ class PostResponse(BaseModel):
     persona_id: Optional[str] = None
     raw_content: Optional[str] = None
     platform_content: Dict[str, str] = {}
+    is_thread: bool = False
+    thread_tweets: List[str] = []
+    carousel_slides: List[Dict[str, Any]] = []
     status: str
     critique: Dict[str, Any] = {}
     thread_id: Optional[str] = None
