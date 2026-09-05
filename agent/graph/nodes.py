@@ -90,7 +90,8 @@ def critique_node(state: AgentState) -> Dict[str, Any]:
     draft = state.get("raw_draft", "")
     tone = state.get("tone", "engaging")
     
-    critique_result = critique_draft(draft, tone)
+    persona_dna = state.get("persona_dna")
+    critique_result = critique_draft(draft, tone, persona_dna)
     return {
         "critique": critique_result,
         "critique_passed": critique_result["passed"]
