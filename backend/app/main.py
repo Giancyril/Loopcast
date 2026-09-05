@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.config import settings
 from backend.app.core.database import engine, Base
 from backend.app.api.posts import router as posts_router
+from backend.app.api.platforms import router as platforms_router
 import backend.app.models.social  # Ensure models are loaded for table creation
 
 # Create tables
@@ -26,6 +27,7 @@ app.add_middleware(
 
 # Include Routers
 app.include_router(posts_router, prefix=settings.API_V1_STR)
+app.include_router(platforms_router, prefix=settings.API_V1_STR)
 
 @app.get("/health")
 def health_check():
