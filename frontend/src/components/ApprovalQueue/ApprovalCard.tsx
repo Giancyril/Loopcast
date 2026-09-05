@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import type { Post } from '../../types';
 import { 
   Check, 
@@ -7,8 +7,16 @@ import {
   Edit3, 
   Save, 
   Sparkles, 
-  ShieldCheck
+  ShieldCheck,
+  Eye,
+  Clock,
+  Zap,
+  Layers,
+  FileText
 } from 'lucide-react';
+import { FeedSimulatorCard } from '../Simulation/FeedSimulatorCard';
+import { LinkedInCarousel } from '../Composer/LinkedInCarousel';
+import { ThreadEditor } from '../Composer/ThreadEditor';
 
 interface ApprovalCardProps {
   post: Post;
@@ -16,6 +24,7 @@ interface ApprovalCardProps {
   onRequestFeedback: (post: Post) => void;
   onSaveEdit: (postId: string, platformContent: Record<string, string>) => void;
   onRejectDirect: (post: Post) => void;
+  onOpenCopilot?: (post: Post, currentCopy: string) => void;
 }
 
 export const ApprovalCard: React.FC<ApprovalCardProps> = ({
@@ -24,12 +33,15 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
   onRequestFeedback,
   onSaveEdit,
   onRejectDirect,
+  onOpenCopilot,
 }) => {
   const platforms = Object.keys(post.platform_content || {});
   const [activePlatform, setActivePlatform] = useState<string>(platforms[0] || 'twitter');
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState<Record<string, string>>(post.platform_content || {});
   const [showCritique, setShowCritique] = useState(false);
+  const [showFeedSim, setShowFeedSim] = useState(false);
+  const [viewMode, setViewMode] = useState<'standard' | 'thread' | 'carousel'>('standard');
 
   const currentText = editedContent[activePlatform] || '';
   const charLimit = activePlatform === 'twitter' ? 280 : 3000;
@@ -52,7 +64,7 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
     <div className="bg-white rounded-xl border border-slate-200 shadow-xs hover:shadow-sm transition-all overflow-hidden flex flex-col">
       {/* Card Header */}
       <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/40">
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center space-x-2.5 flex-wrap gap-y-1">
           <span className="font-semibold text-xs text-slate-900 tracking-tight">
             {post.topic}
           </span>
@@ -63,16 +75,48 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
             <ShieldCheck className="w-3 h-3" />
             <span>AI Score: {score}/100</span>
           </span>
+
+          {/* Predictive Best Time Chip */}
+          <span className="flex items-center space-x-1 text-[10px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">
+            <Clock className="w-3 h-3 text-indigo-500" />
+            <span>Peak Time: Tue 12:00 UTC</span>
+          </span>
         </div>
 
-        <button
-          onClick={() => setShowCritique(!showCritique)}
-          className="text-[11px] text-indigo-600 hover:text-indigo-800 font-medium flex items-center space-x-1 cursor-pointer"
-        >
-          <Sparkles className="w-3 h-3" />
-          <span>{showCritique ? 'Hide AI Critique' : 'View AI Critique'}</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowFeedSim(!showFeedSim)}
+            className={`text-[11px] font-medium flex items-center space-x-1 cursor-pointer transition-colors ${
+              showFeedSim ? 'text-indigo-600 font-bold' : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>{showFeedSim ? 'Exit Preview' : 'Feed Simulator'}</span>
+          </button>
+
+          <button
+            onClick={() => setShowCritique(!showCritique)}
+            className="text-[11px] text-indigo-600 hover:text-indigo-800 font-medium flex items-center space-x-1 cursor-pointer"
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>{showCritique ? 'Hide Critique' : 'Critique'}</span>
+          </button>
+        </div>
       </div>
+
+      {/* Feed Simulator Preview Drawer */}
+      {showFeedSim && (
+        <div className="p-4 bg-slate-900/5 border-b border-slate-200 flex justify-center animate-in fade-in duration-200">
+          <FeedSimulatorCard
+            platform={activePlatform === 'twitter' ? 'twitter' : 'linkedin'}
+            content={currentText}
+            predictedLikes={activePlatform === 'twitter' ? 342 : 185}
+            predictedShares={activePlatform === 'twitter' ? 78 : 42}
+            predictedComments={activePlatform === 'twitter' ? 36 : 24}
+            predictedViews={activePlatform === 'twitter' ? 12400 : 8600}
+          />
+        </div>
+      )}
 
       {/* Expandable Critique Details */}
       {showCritique && post.critique && (
@@ -100,8 +144,8 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
         </div>
       )}
 
-      {/* Platform Switcher Tabs */}
-      <div className="px-5 pt-3 flex items-center justify-between">
+      {/* Platform Switcher & Format View Mode Tabs */}
+      <div className="px-5 pt-3 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg">
           {platforms.map(p => (
             <button
@@ -120,17 +164,60 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
           ))}
         </div>
 
-        {/* Character count gauge */}
-        <div className="flex items-center space-x-2 text-[11px] font-mono">
-          <span className={isOverLimit ? 'text-rose-600 font-bold' : 'text-slate-500'}>
-            {currentText.length} / {charLimit} chars
+        {/* View Mode Switcher (Thread / Carousel / Standard) */}
+        <div className="flex items-center space-x-2">
+          {post.is_thread && activePlatform === 'twitter' && (
+            <button
+              onClick={() => setViewMode(viewMode === 'thread' ? 'standard' : 'thread')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer border ${
+                viewMode === 'thread'
+                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <Layers className="w-3 h-3" />
+              Thread View ({post.thread_tweets?.length || 0})
+            </button>
+          )}
+
+          {post.carousel_slides && post.carousel_slides.length > 0 && activePlatform === 'linkedin' && (
+            <button
+              onClick={() => setViewMode(viewMode === 'carousel' ? 'standard' : 'carousel')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer border ${
+                viewMode === 'carousel'
+                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <FileText className="w-3 h-3" />
+              Carousel Slides ({post.carousel_slides.length})
+            </button>
+          )}
+
+          {/* Character count gauge */}
+          <span className={`text-[11px] font-mono ${isOverLimit ? 'text-rose-600 font-bold' : 'text-slate-500'}`}>
+            {currentText.length} / {charLimit}
           </span>
         </div>
       </div>
 
-      {/* Content Body / Editor */}
+      {/* Content Body / Editor / Thread / Carousel */}
       <div className="p-5 flex-1 flex flex-col justify-between">
-        {isEditing ? (
+        {viewMode === 'thread' && post.thread_tweets ? (
+          <div className="mb-3">
+            <ThreadEditor
+              initialTweets={post.thread_tweets}
+              onSave={(updatedTweets) => {
+                const combined = updatedTweets.join('\n\n---\n\n');
+                handleTextChange(combined);
+              }}
+            />
+          </div>
+        ) : viewMode === 'carousel' && post.carousel_slides ? (
+          <div className="mb-3">
+            <LinkedInCarousel slides={post.carousel_slides} topic={post.topic} />
+          </div>
+        ) : isEditing ? (
           <textarea
             value={currentText}
             onChange={(e) => handleTextChange(e.target.value)}
@@ -144,8 +231,8 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
         )}
 
         {/* Action Controls */}
-        <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between">
-          <div>
+        <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center space-x-2">
             {isEditing ? (
               <button
                 onClick={handleSave}
@@ -161,6 +248,16 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>Edit Copy</span>
+              </button>
+            )}
+
+            {onOpenCopilot && (
+              <button
+                onClick={() => onOpenCopilot(post, currentText)}
+                className="flex items-center space-x-1 px-3 py-1.5 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                <span>AI Copilot</span>
               </button>
             )}
           </div>
