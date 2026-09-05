@@ -26,28 +26,28 @@ export const SimulationLab: React.FC = () => {
             Test and simulate audience engagement before pushing posts live. Run multi-variant A/B tests to predict virality score, CTR, sentiment distribution, and feed appearance.
           </p>
 
-          {/* Quick Switcher */}
+          {/* Quick Switcher - stable min-w stops layout shift on toggle */}
           <div className="pt-2 flex items-center gap-3">
             <button
               onClick={() => setPlatform('twitter')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors duration-150 cursor-pointer min-w-[184px] ${
                 platform === 'twitter'
-                  ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/25'
-                  : 'bg-white/10 hover:bg-white/20 text-slate-300'
+                  ? 'bg-sky-500 text-white ring-2 ring-sky-400/40'
+                  : 'bg-white/10 hover:bg-white/20 text-slate-300 ring-2 ring-transparent'
               }`}
             >
-              <span className="font-mono font-bold text-xs">𝕏</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-black/20 font-mono font-black text-xs leading-none shrink-0">X</span>
               Twitter (X) Simulation
             </button>
             <button
               onClick={() => setPlatform('linkedin')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors duration-150 cursor-pointer min-w-[200px] ${
                 platform === 'linkedin'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
-                  : 'bg-white/10 hover:bg-white/20 text-slate-300'
+                  ? 'bg-blue-600 text-white ring-2 ring-blue-400/40'
+                  : 'bg-white/10 hover:bg-white/20 text-slate-300 ring-2 ring-transparent'
               }`}
             >
-              <span className="font-bold text-xs bg-white text-blue-600 px-1 rounded-xs">in</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white text-blue-600 font-black text-[10px] leading-none shrink-0">in</span>
               LinkedIn Feed Simulation
             </button>
           </div>
@@ -118,4 +118,5 @@ export const SimulationLab: React.FC = () => {
     </div>
   );
 };
+
 
