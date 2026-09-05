@@ -157,3 +157,43 @@ def refine_copy(
             "delta_chars": len(refined) - len(original),
         },
     }
+
+def diagnose_copy(text: str, platform: str = "twitter") -> dict[str, Any]:
+    """
+    Copy Doctor diagnostics: grades readability, hook power, and highlights improvements.
+    """
+    char_limit = 280 if platform == "twitter" else 3000
+    char_count = len(text)
+    word_count = len(text.split())
+
+    issues = []
+    recommendations = []
+
+    if char_count > char_limit:
+        issues.append(f"Exceeds {platform} limit by {char_count - char_limit} characters.")
+        recommendations.append("Use the 'Condense' action to trim length.")
+
+    if "?" not in text and "👇" not in text and "share" not in text.lower():
+        issues.append("Missing explicit call to action.")
+        recommendations.append("Add a question or CTA at the end to boost engagement.")
+
+    lines = [l for l in text.split("\n") if l.strip()]
+    if len(lines) == 1 and word_count > 40:
+        issues.append("Dense single-block paragraph is hard to scan on mobile feeds.")
+        recommendations.append("Use 'Viral Booster' to break text into scannable sentences.")
+
+    hook_grade = "A" if (lines and len(lines[0]) < 90 and any(w in lines[0].lower() for w in ["how", "why", "stop", "most", "the", "secret"])) else "B" if lines else "C"
+
+    readability_score = min(100, max(40, 100 - max(0, word_count - 60) * 0.5))
+
+    return {
+        "platform": platform,
+        "char_count": char_count,
+        "char_limit": char_limit,
+        "word_count": word_count,
+        "hook_grade": hook_grade,
+        "readability_score": round(readability_score, 1),
+        "issues": issues,
+        "recommendations": recommendations,
+        "is_optimal": len(issues) == 0,
+    }
