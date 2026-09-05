@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Mic,
   Inbox,
   CalendarDays,
   PlusCircle,
@@ -8,7 +9,7 @@ import {
   BarChart2,
 } from "lucide-react";
 
-export type NavTab = "queue" | "calendar" | "accounts" | "analytics";
+export type NavTab = "queue" | "calendar" | "personas" | "analytics" | "accounts";
 
 interface SidebarProps {
   currentTab: NavTab;
@@ -27,6 +28,7 @@ const NAV_ITEMS: {
 }[] = [
     { id: "queue", label: "Approval Queue", icon: Inbox, badgeKey: "pendingCount" },
     { id: "calendar", label: "Calendar", icon: CalendarDays },
+    { id: "personas", label: "Voice Studio", icon: Mic },
     { id: "analytics", label: "Analytics", icon: BarChart2 },
     { id: "accounts", label: "Connected Accounts", icon: Share2 },
   ];
@@ -100,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Footer Ã¢â‚¬â€ System Status */}
+      {/* Footer ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â System Status */}
       <div className="p-4 border-t border-slate-100 bg-slate-50/60">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center space-x-1.5">

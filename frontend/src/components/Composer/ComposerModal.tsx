@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import type { GenerateParams } from '../../types';
+import { X, Mic } from 'lucide-react';
+import type { GenerateParams, Persona } from '../../types';
 
 interface ComposerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onGenerate: (params: GenerateParams) => void;
   isGenerating?: boolean;
+  personas?: Persona[];
 }
 
 const TONES = [
@@ -21,9 +22,13 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
   onClose,
   onGenerate,
   isGenerating,
+  personas = [],
 }) => {
   const [topic, setTopic] = useState('');
   const [tone, setTone] = useState('engaging');
+  const [selectedPersonaId, setSelectedPersonaId] = useState<string>(
+    personas.find(p => p.is_default)?.id || personas[0]?.id || ''
+  );
   const [platforms, setPlatforms] = useState<string[]>(['twitter', 'linkedin']);
 
   if (!isOpen) return null;
@@ -42,6 +47,7 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
     onGenerate({
       topic: topic.trim(),
       tone,
+      persona_id: selectedPersonaId || undefined,
       target_platforms: platforms
     });
   };
@@ -64,25 +70,44 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {/* Topic input */}
           <div>
-            <label className="block text-xs font-semibold text-slate-800 mb-1.5">
-              Content Topic or Brief
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Topic or Brief
             </label>
             <textarea
+              rows={3}
+              required
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g. Announcing our new open-source LangGraph multi-platform social media scheduler with human approval..."
-              rows={3}
-              className="w-full text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 resize-none font-sans"
-              required
+              placeholder="e.g., We rebuilt our indexing engine from scratch to handle 10x throughput..."
+              className="w-full text-xs p-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder:text-slate-400 resize-none"
             />
           </div>
 
-          {/* Tone Selector */}
+          {/* Persona Selection */}
+          {personas.length > 0 && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                <Mic className="w-3.5 h-3.5 text-indigo-600" />
+                Brand Voice Persona
+              </label>
+              <select
+                value={selectedPersonaId}
+                onChange={(e) => setSelectedPersonaId(e.target.value)}
+                className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-900 bg-white cursor-pointer"
+              >
+                {personas.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.archetype}) {p.is_default ? '★ Active Default' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
-            <label className="block text-xs font-semibold text-slate-800 mb-1.5">
-              Voice & Tone
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Tone Style
             </label>
             <div className="grid grid-cols-2 gap-2">
               {TONES.map(t => (
@@ -102,28 +127,26 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
             </div>
           </div>
 
-          {/* Target Platforms */}
           <div>
-            <label className="block text-xs font-semibold text-slate-800 mb-1.5">
-              Target Networks
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Publishing Channels
             </label>
-            <div className="flex items-center space-x-3">
+            <div className="flex space-x-2">
               <button
                 type="button"
                 onClick={() => togglePlatform('twitter')}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border text-xs font-medium cursor-pointer transition-all ${platforms.includes('twitter')
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${platforms.includes('twitter')
                   ? 'border-slate-900 bg-slate-900 text-white'
                   : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
               >
-                <span className="font-bold">X</span>
-                <span>(Twitter)</span>
+                <span className="font-bold">𝕏</span>
+                <span>Twitter / X</span>
               </button>
-
               <button
                 type="button"
                 onClick={() => togglePlatform('linkedin')}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border text-xs font-medium cursor-pointer transition-all ${platforms.includes('linkedin')
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${platforms.includes('linkedin')
                   ? 'border-[#0a66c2] bg-[#0a66c2] text-white'
                   : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
@@ -134,12 +157,11 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
             </div>
           </div>
 
-          {/* Submit */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
+              className="px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -148,7 +170,6 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
               disabled={isGenerating || !topic.trim()}
               className="flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
-
               <span>{isGenerating ? 'Running Agent...' : 'Generate & Critique'}</span>
             </button>
           </div>
