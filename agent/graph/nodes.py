@@ -119,12 +119,16 @@ def format_node(state: AgentState) -> Dict[str, Any]:
     thread_data = generate_thread_and_carousel(topic, raw, persona_dna)
     thread_tweets = thread_data["thread_tweets"]
     carousel_slides = thread_data["carousel_slides"]
+    critique = state.get("critique", {})
+    if "thread_critique" in thread_data:
+        critique["thread_critique"] = thread_data["thread_critique"]
 
     return {
         "platform_posts": posts,
         "is_thread": generate_thread,
         "thread_tweets": thread_tweets,
         "carousel_slides": carousel_slides,
+        "critique": critique,
         "approval_status": "pending_approval"
     }
 
