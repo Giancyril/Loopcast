@@ -31,6 +31,8 @@ export interface Persona {
   bio?: string | null;
   archetype: 'founder' | 'explainer' | 'growth_hacker' | 'executive' | string;
   tone_attributes: ToneAttributes;
+  tone_profile?: ToneAttributes;
+  voice_rules?: string;
   banned_words: string[];
   sample_hooks: string[];
   target_audience: string;
@@ -48,6 +50,8 @@ export interface Post {
   raw_content?: string;
   platform_content: Record<string, string>;
   thread_tweets?: string[];
+  is_thread?: boolean;
+  carousel_slides?: any[];
   status: PostStatus;
   critique: Critique;
   thread_id?: string;
@@ -77,3 +81,4 @@ export interface GenerateParams {
   is_thread?: boolean;
   content_format?: string;
 }
+

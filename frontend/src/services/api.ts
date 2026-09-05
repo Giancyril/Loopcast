@@ -1,4 +1,4 @@
-import type { Post, PlatformConnection, GenerateParams, Persona } from '../types';
+﻿import type { Post, PlatformConnection, GenerateParams, Persona } from '../types';
 
 const API_BASE = '/api/v1';
 
@@ -38,6 +38,20 @@ export const api = {
     });
     if (!res.ok) throw new Error(`Rejection feedback failed: ${res.statusText}`);
     return res.json();
+  },
+
+    async reviewPost(id: string, action: string, feedback?: string): Promise<Post> {
+    if (action === 'rejected') {
+      return this.rejectPost(id, feedback || '');
+    }
+    return this.approvePost(id);
+  },
+
+  async updatePost(id: string, updates: { platform_content?: Record<string, string> }): Promise<Post> {
+    if (updates.platform_content) {
+      return this.editPost(id, updates.platform_content);
+    }
+    return this.getPosts().then(posts => posts.find(p => p.id === id)!);
   },
 
   async editPost(id: string, platformContent: Record<string, string>): Promise<Post> {

@@ -1,7 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { ABVariantPicker } from './ABVariantPicker';
 import { FeedSimulatorCard } from './FeedSimulatorCard';
-import { FlaskConical, Twitter, Linkedin, Sparkles, BarChart3, Users, Zap, Compass } from 'lucide-react';
+import { FlaskConical, BarChart3, Compass } from 'lucide-react';
 
 export const SimulationLab: React.FC = () => {
   const [platform, setPlatform] = useState<'twitter' | 'linkedin'>('twitter');
@@ -36,7 +36,7 @@ export const SimulationLab: React.FC = () => {
                   : 'bg-white/10 hover:bg-white/20 text-slate-300'
               }`}
             >
-              <Twitter className="w-4 h-4 fill-current" />
+              <span className="font-mono font-bold text-xs">𝕏</span>
               Twitter (X) Simulation
             </button>
             <button
@@ -47,7 +47,7 @@ export const SimulationLab: React.FC = () => {
                   : 'bg-white/10 hover:bg-white/20 text-slate-300'
               }`}
             >
-              <Linkedin className="w-4 h-4 fill-current" />
+              <span className="font-bold text-xs bg-white text-blue-600 px-1 rounded-xs">in</span>
               LinkedIn Feed Simulation
             </button>
           </div>
@@ -118,3 +118,4 @@ export const SimulationLab: React.FC = () => {
     </div>
   );
 };
+

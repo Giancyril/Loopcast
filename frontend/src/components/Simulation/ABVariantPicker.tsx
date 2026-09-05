@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Trophy, TrendingUp, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Trophy, TrendingUp, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export interface HookVariantItem {
   id: string;
@@ -215,3 +215,5 @@ export const ABVariantPicker: React.FC<ABVariantPickerProps> = ({
     </div>
   );
 };
+
+

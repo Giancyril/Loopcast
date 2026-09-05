@@ -27,12 +27,13 @@ const NAV_ITEMS: {
   icon: React.FC<{ className?: string }>;
   badgeKey?: "pendingCount";
 }[] = [
-    { id: "queue", label: "Approval Queue", icon: Inbox, badgeKey: "pendingCount" },
-    { id: "calendar", label: "Calendar", icon: CalendarDays },
-    { id: "personas", label: "Voice Studio", icon: Mic },`n    { id: "simulation", label: "Simulation Lab", icon: FlaskConical },
-    { id: "analytics", label: "Analytics", icon: BarChart2 },
-    { id: "accounts", label: "Connected Accounts", icon: Share2 },
-  ];
+  { id: "queue", label: "Approval Queue", icon: Inbox, badgeKey: "pendingCount" },
+  { id: "calendar", label: "Calendar", icon: CalendarDays },
+  { id: "personas", label: "Voice Studio", icon: Mic },
+  { id: "simulation", label: "Simulation Lab", icon: FlaskConical },
+  { id: "analytics", label: "Analytics", icon: BarChart2 },
+  { id: "accounts", label: "Connected Accounts", icon: Share2 },
+];
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentTab,
@@ -83,10 +84,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 key={id}
                 id={`nav-${id}`}
                 onClick={() => onSelectTab(id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${isActive
-                  ? "bg-indigo-50 text-indigo-700 font-semibold"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-700 font-semibold"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`}
               >
                 <div className="flex items-center space-x-2.5">
                   <Icon className={`w-4 h-4 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
@@ -103,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Footer ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â System Status */}
+      {/* Footer / System Status */}
       <div className="p-4 border-t border-slate-100 bg-slate-50/60">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center space-x-1.5">
@@ -131,4 +133,3 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </aside>
   );
 };
-

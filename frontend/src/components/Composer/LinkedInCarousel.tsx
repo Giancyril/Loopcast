@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Presentation, ChevronLeft, ChevronRight, Sparkles, Target, BarChart3, CheckSquare } from 'lucide-react';
 
 interface CarouselSlide {
@@ -22,7 +22,7 @@ const SLIDE_THEMES: Record<string, { bg: string; icon: React.FC<{ className?: st
   cta: { bg: 'bg-gradient-to-br from-amber-500 to-orange-500', icon: CheckSquare, accent: 'text-white' },
 };
 
-export const LinkedInCarousel: React.FC<LinkedInCarouselProps> = ({ slides, topic }) => {
+export const LinkedInCarousel: React.FC<LinkedInCarouselProps> = ({ slides }) => {
   const [activeIdx, setActiveIdx] = useState(0);
 
   if (!slides || slides.length === 0) {

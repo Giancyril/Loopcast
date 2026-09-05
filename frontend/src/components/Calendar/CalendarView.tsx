@@ -5,8 +5,7 @@ import {
   Clock, 
   Send,
   TrendingUp,
-  Sparkles
-} from 'lucide-react';
+  } from 'lucide-react';
 import { BestTimeHeatmap } from '../Scheduler/BestTimeHeatmap';
 
 interface CalendarViewProps {
@@ -201,3 +200,4 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ posts, onPublishNow 
     </div>
   );
 };
+

@@ -5,10 +5,12 @@ import { ApprovalQueue } from "./components/ApprovalQueue/ApprovalQueue";
 import { CalendarView } from "./components/Calendar/CalendarView";
 import { AccountsView } from "./components/Accounts/AccountsView";
 import { AnalyticsView } from "./components/Analytics/AnalyticsView";
-import { VoiceStudio } from "./components/VoiceStudio/VoiceStudio";`nimport { SimulationLab } from "./components/Simulation/SimulationLab";
+import { VoiceStudio } from "./components/VoiceStudio/VoiceStudio";
+import { SimulationLab } from "./components/Simulation/SimulationLab";
 import { ComposerModal } from "./components/Composer/ComposerModal";
 import { FeedbackModal } from "./components/ApprovalQueue/FeedbackModal";
-import { ScheduleModal } from "./components/ApprovalQueue/ScheduleModal";`nimport { CopilotDrawer } from "./components/Copilot/CopilotDrawer";
+import { ScheduleModal } from "./components/ApprovalQueue/ScheduleModal";
+import { CopilotDrawer } from "./components/Copilot/CopilotDrawer";
 import { api } from "./services/api";
 import type { Post, PlatformConnection, GenerateParams, Persona } from "./types";
 
@@ -22,7 +24,12 @@ const AppInner: React.FC = () => {
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [feedbackPost, setFeedbackPost] = useState<Post | null>(null);
   const [schedulePost, setSchedulePost] = useState<Post | null>(null);
-  const [isModalActionLoading, setIsModalActionLoading] = useState(false);`n  const [copilotState, setCopilotState] = useState<{ isOpen: boolean; post: Post | null; text: string }>({ isOpen: false, post: null, text: "" });
+  const [isModalActionLoading, setIsModalActionLoading] = useState(false);
+  const [copilotState, setCopilotState] = useState<{
+    isOpen: boolean;
+    post: Post | null;
+    text: string;
+  }>({ isOpen: false, post: null, text: "" });
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -68,42 +75,40 @@ const AppInner: React.FC = () => {
       setCurrentTab("queue");
       toast("AI draft created! Review it in the Approval Queue.", "success");
     } catch (err) {
-      toast("Generation failed: " + String(err), "error");
+      toast("Failed to generate draft: " + String(err), "error");
     } finally {
       setIsModalActionLoading(false);
     }
   };
 
-  const handleApprove = async (scheduledFor?: string) => {
-    if (!schedulePost) return;
+  const handleApprove = async (postId: string, scheduledFor?: string) => {
     setIsModalActionLoading(true);
     try {
-      await api.approvePost(schedulePost.id, scheduledFor);
+      await api.approvePost(postId, scheduledFor);
       await fetchPosts();
       setSchedulePost(null);
       toast(
         scheduledFor
-          ? "Post approved and scheduled."
-          : "Post approved for immediate publishing.",
+          ? `Post scheduled for ${new Date(scheduledFor).toLocaleString()}`
+          : "Post scheduled for immediate publish.",
         "success"
       );
     } catch (err) {
-      toast("Approval failed: " + String(err), "error");
+      toast("Failed to schedule post: " + String(err), "error");
     } finally {
       setIsModalActionLoading(false);
     }
   };
 
-  const handleRejectFeedback = async (feedback: string) => {
-    if (!feedbackPost) return;
+  const handleRejectFeedback = async (postId: string, feedback: string) => {
     setIsModalActionLoading(true);
     try {
-      await api.rejectPost(feedbackPost.id, feedback);
+      await api.reviewPost(postId, "rejected", feedback);
       await fetchPosts();
       setFeedbackPost(null);
-      toast("Feedback sent. AI agent is regenerating the draft.", "info");
+      toast("Feedback submitted. AI is regenerating revisions.", "info");
     } catch (err) {
-      toast("Could not send feedback: " + String(err), "error");
+      toast("Failed to submit feedback: " + String(err), "error");
     } finally {
       setIsModalActionLoading(false);
     }
@@ -114,9 +119,9 @@ const AppInner: React.FC = () => {
     platformContent: Record<string, string>
   ) => {
     try {
-      await api.editPost(postId, platformContent);
+      await api.updatePost(postId, { platform_content: platformContent });
       await fetchPosts();
-      toast("Draft edits saved successfully.", "success");
+      toast("Draft updated successfully.", "success");
     } catch (err) {
       toast("Could not save edit: " + String(err), "error");
     }
@@ -169,14 +174,14 @@ const AppInner: React.FC = () => {
     }
   };
 
-  // Persona Handlers
-    const handleOpenCopilot = (post: Post, currentCopy: string) => {
+  const handleOpenCopilot = (post: Post, currentCopy: string) => {
     setCopilotState({ isOpen: true, post, text: currentCopy });
   };
 
   const handleApplyCopilot = (newText: string) => {
     if (copilotState.post) {
-      const activePlat = Object.keys(copilotState.post.platform_content || {})[0] || "twitter";
+      const activePlat =
+        Object.keys(copilotState.post.platform_content || {})[0] || "twitter";
       handleSaveEdit(copilotState.post.id, {
         ...(copilotState.post.platform_content || {}),
         [activePlat]: newText,
@@ -208,7 +213,7 @@ const AppInner: React.FC = () => {
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
         pendingCount={pendingCount}
-        onOpenComposer={() => setIsComposerOpen(true)}`n            onOpenCopilot={handleOpenCopilot}
+        onOpenComposer={() => setIsComposerOpen(true)}
         onTriggerSync={handleTriggerSync}
         isSyncing={isSyncing}
       />
@@ -221,7 +226,8 @@ const AppInner: React.FC = () => {
             onRequestFeedback={(post) => setFeedbackPost(post)}
             onSaveEdit={handleSaveEdit}
             onRejectDirect={handleRejectDirect}
-            onOpenComposer={() => setIsComposerOpen(true)}`n            onOpenCopilot={handleOpenCopilot}
+            onOpenComposer={() => setIsComposerOpen(true)}
+            onOpenCopilot={handleOpenCopilot}
           />
         )}
 
@@ -232,14 +238,15 @@ const AppInner: React.FC = () => {
         {currentTab === "personas" && (
           <VoiceStudio
             personas={personas}
-            
             onUpdatePersona={handleUpdatePersona}
             onCreatePersona={handleCreatePersona}
             onDeletePersona={handleDeletePersona}
           />
         )}
 
-        {currentTab === "simulation" && <SimulationLab />}`n`n        {currentTab === "analytics" && <AnalyticsView posts={posts} />}
+        {currentTab === "simulation" && <SimulationLab />}
+
+        {currentTab === "analytics" && <AnalyticsView posts={posts} />}
 
         {currentTab === "accounts" && (
           <AccountsView
@@ -261,24 +268,26 @@ const AppInner: React.FC = () => {
       <FeedbackModal
         isOpen={!!feedbackPost}
         onClose={() => setFeedbackPost(null)}
-        onSubmit={handleRejectFeedback}
+        onSubmit={(feedback: string) => feedbackPost && handleRejectFeedback(feedbackPost.id, feedback)}
         isSubmitting={isModalActionLoading}
       />
 
       <ScheduleModal
         isOpen={!!schedulePost}
         onClose={() => setSchedulePost(null)}
-        onApprove={handleApprove}
+        onApprove={(scheduledFor?: string) => schedulePost && handleApprove(schedulePost.id, scheduledFor)}
         isSubmitting={isModalActionLoading}
       />
+
       <CopilotDrawer
         isOpen={copilotState.isOpen}
-        onClose={() => setCopilotState(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setCopilotState((prev) => ({ ...prev, isOpen: false }))}
         originalText={copilotState.text}
         platform="twitter"
         onApplyRefinedText={handleApplyCopilot}
       />
-    </div>);
+    </div>
+  );
 };
 
 export const App: React.FC = () => (

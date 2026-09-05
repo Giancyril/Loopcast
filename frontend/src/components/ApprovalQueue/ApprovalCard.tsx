@@ -10,7 +10,6 @@ import {
   ShieldCheck,
   Eye,
   Clock,
-  Zap,
   Layers,
   FileText
 } from 'lucide-react';
@@ -206,8 +205,8 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
         {viewMode === 'thread' && post.thread_tweets ? (
           <div className="mb-3">
             <ThreadEditor
-              initialTweets={post.thread_tweets}
-              onSave={(updatedTweets) => {
+              tweets={post.thread_tweets || []}
+              onChange={(updatedTweets: string[]) => {
                 const combined = updatedTweets.join('\n\n---\n\n');
                 handleTextChange(combined);
               }}
@@ -293,3 +292,4 @@ export const ApprovalCard: React.FC<ApprovalCardProps> = ({
     </div>
   );
 };
+
