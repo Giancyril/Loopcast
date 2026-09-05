@@ -1,4 +1,4 @@
-export type PostStatus = 'pending_approval' | 'approved' | 'scheduled' | 'published' | 'failed';
+﻿export type PostStatus = 'pending_approval' | 'approved' | 'scheduled' | 'published' | 'failed';
 
 export interface ApprovalLog {
   id: string;
@@ -74,4 +74,6 @@ export interface GenerateParams {
   tone: string;
   persona_id?: string | null;
   target_platforms: string[];
+  is_thread?: boolean;
+  content_format?: string;
 }

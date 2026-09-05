@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Mic } from 'lucide-react';
+﻿import React, { useState } from 'react';
+import { X, Mic, Layers, FileText, Share2, Sparkles } from 'lucide-react';
 import type { GenerateParams, Persona } from '../../types';
 
 interface ComposerModalProps {
@@ -26,6 +26,7 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
 }) => {
   const [topic, setTopic] = useState('');
   const [tone, setTone] = useState('engaging');
+  const [format, setFormat] = useState<'single' | 'thread' | 'carousel'>('single');
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>(
     personas.find(p => p.is_default)?.id || personas[0]?.id || ''
   );
@@ -48,7 +49,9 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
       topic: topic.trim(),
       tone,
       persona_id: selectedPersonaId || undefined,
-      target_platforms: platforms
+      target_platforms: platforms,
+      is_thread: format === 'thread',
+      content_format: format,
     });
   };
 
@@ -57,6 +60,7 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
       <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-indigo-600" />
             <h3 className="text-sm font-semibold text-slate-900">
               Create Draft — Loopcast AI
             </h3>
@@ -84,6 +88,56 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
             />
           </div>
 
+          {/* Content Format Selector */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Content Format & Structure
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setFormat('single')}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-center transition-all cursor-pointer ${
+                  format === 'single'
+                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <Share2 className="w-4 h-4 mb-1 text-slate-700" />
+                <span className="text-[11px] font-semibold">Standard</span>
+                <span className="text-[9px] text-slate-400">Single post</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormat('thread')}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-center transition-all cursor-pointer ${
+                  format === 'thread'
+                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <Layers className="w-4 h-4 mb-1 text-indigo-600" />
+                <span className="text-[11px] font-semibold">X Thread</span>
+                <span className="text-[9px] text-slate-400">3-7 tweets</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormat('carousel')}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-center transition-all cursor-pointer ${
+                  format === 'carousel'
+                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <FileText className="w-4 h-4 mb-1 text-[#0a66c2]" />
+                <span className="text-[11px] font-semibold">Carousel</span>
+                <span className="text-[9px] text-slate-400">5 slides</span>
+              </button>
+            </div>
+          </div>
+
           {/* Persona Selection */}
           {personas.length > 0 && (
             <div>
@@ -98,79 +152,89 @@ export const ComposerModal: React.FC<ComposerModalProps> = ({
               >
                 {personas.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.archetype}) {p.is_default ? '★ Active Default' : ''}
+                    {p.name} — {p.archetype} ({p.tone_profile?.formality ? 'Formality ' + p.tone_profile.formality + '%' : 'Default'})
                   </option>
                 ))}
               </select>
             </div>
           )}
 
+          {/* Target Platforms */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Tone Style
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Target Platforms
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => togglePlatform('twitter')}
+                className={`flex-1 py-1.5 px-3 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
+                  platforms.includes('twitter')
+                    ? 'border-slate-900 bg-slate-900 text-white shadow-xs'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                X (Twitter)
+              </button>
+              <button
+                type="button"
+                onClick={() => togglePlatform('linkedin')}
+                className={`flex-1 py-1.5 px-3 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
+                  platforms.includes('linkedin')
+                    ? 'border-[#0a66c2] bg-[#0a66c2] text-white shadow-xs'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                LinkedIn
+              </button>
+            </div>
+          </div>
+
+          {/* Tone Archetype */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Tone Preset
             </label>
             <div className="grid grid-cols-2 gap-2">
               {TONES.map(t => (
                 <button
-                  type="button"
                   key={t.id}
+                  type="button"
                   onClick={() => setTone(t.id)}
-                  className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${tone === t.id
-                    ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600'
-                    : 'border-slate-200 hover:bg-slate-50'
-                    }`}
+                  className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                    tone === t.id
+                      ? 'border-indigo-600 bg-indigo-50/50 text-indigo-950'
+                      : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                  }`}
                 >
-                  <span className="block text-xs font-semibold text-slate-900">{t.label}</span>
-                  <span className="block text-[10px] text-slate-500">{t.desc}</span>
+                  <p className="text-xs font-semibold">{t.label}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{t.desc}</p>
                 </button>
               ))}
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Publishing Channels
-            </label>
-            <div className="flex space-x-2">
-              <button
-                type="button"
-                onClick={() => togglePlatform('twitter')}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${platforms.includes('twitter')
-                  ? 'border-slate-900 bg-slate-900 text-white'
-                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-              >
-                <span className="font-bold">𝕏</span>
-                <span>Twitter / X</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => togglePlatform('linkedin')}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${platforms.includes('linkedin')
-                  ? 'border-[#0a66c2] bg-[#0a66c2] text-white'
-                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-              >
-                <span className="font-bold">in</span>
-                <span>LinkedIn</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+          <div className="pt-2 flex items-center justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
+              className="px-3.5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isGenerating || !topic.trim()}
-              className="flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
             >
-              <span>{isGenerating ? 'Running Agent...' : 'Generate & Critique'}</span>
+              {isGenerating ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Generating Pipeline...</span>
+                </>
+              ) : (
+                <span>Generate Draft</span>
+              )}
             </button>
           </div>
         </form>
