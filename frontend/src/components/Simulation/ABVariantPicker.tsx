@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Trophy, TrendingUp, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Trophy, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 export interface HookVariantItem {
   id: string;
@@ -111,7 +111,6 @@ export const ABVariantPicker: React.FC<ABVariantPickerProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
             Hook A/B Testing Lab ({platform})
           </h4>
           <p className="text-[11px] text-slate-500">Test competing opening hooks before publishing to predict viral reach.</p>
@@ -141,13 +140,12 @@ export const ABVariantPicker: React.FC<ABVariantPickerProps> = ({
             <div
               key={v.id}
               onClick={() => setSelectedVariantId(v.id)}
-              className={`p-3.5 rounded-xl border transition-all cursor-pointer relative ${
-                isWinner
-                  ? 'border-emerald-500 bg-emerald-50/40 shadow-sm'
-                  : isSelected
+              className={`p-3.5 rounded-xl border transition-all cursor-pointer relative ${isWinner
+                ? 'border-emerald-500 bg-emerald-50/40 shadow-sm'
+                : isSelected
                   ? 'border-indigo-500 bg-indigo-50/20 shadow-sm'
                   : 'border-slate-200 bg-white hover:border-slate-300'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">

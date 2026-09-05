@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, X, Sparkles } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -29,9 +29,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
       <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <MessageSquare className="w-4 h-4" />
-            </div>
+
             <h3 className="text-sm font-semibold text-slate-900">
               Request AI Changes (Feedback Loop)
             </h3>
