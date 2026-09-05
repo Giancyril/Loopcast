@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import type { Persona } from "../../types";
 import {
   Mic,
   Sliders,
   ShieldAlert,
-  Sparkles,
   Plus,
   Trash2,
   CheckCircle,
@@ -154,11 +153,10 @@ export const VoiceStudio: React.FC<VoiceStudioProps> = ({
             <div
               key={p.id}
               onClick={() => setSelectedId(p.id)}
-              className={`p-4 rounded-xl border transition-all cursor-pointer relative ${
-                isSelected
+              className={`p-4 rounded-xl border transition-all cursor-pointer relative ${isSelected
                   ? "bg-indigo-50/70 border-indigo-300 ring-1 ring-indigo-400 shadow-xs"
                   : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
-              }`}
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -352,7 +350,6 @@ export const VoiceStudio: React.FC<VoiceStudioProps> = ({
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
               Create New Brand Voice Persona
             </h3>
 
