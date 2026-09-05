@@ -46,6 +46,7 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({
   const [loading, setLoading] = useState(false);
   const [appliedAction, setAppliedAction] = useState<string | null>(null);
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
+  const [viewDiff, setViewDiff] = useState(false);
 
   useEffect(() => {
     setCurrentText(originalText);
@@ -262,9 +263,18 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({
           {/* Refined Content Workspace */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Copilot Candidate
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Copilot Candidate
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setViewDiff(!viewDiff)}
+                  className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+                >
+                  {viewDiff ? "Editor View" : "Side-by-Side Diff"}
+                </button>
+              </div>
               {appliedAction && (
                 <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
                   Applied: {appliedAction}
@@ -272,15 +282,32 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({
               )}
             </div>
 
-            <textarea
-              rows={8}
-              value={refinedText}
-              onChange={(e) => {
-                setRefinedText(e.target.value);
-                fetchDiagnosis(e.target.value);
-              }}
-              className="w-full text-xs text-slate-900 p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-sans leading-relaxed resize-none"
-            />
+            {viewDiff ? (
+              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Original ({originalText.length} chars)</span>
+                  <div className="p-2.5 bg-rose-50/50 border border-rose-100 rounded-lg text-rose-950 whitespace-pre-wrap leading-relaxed">
+                    {originalText}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block mb-1">Refined ({refinedText.length} chars)</span>
+                  <div className="p-2.5 bg-emerald-50/50 border border-emerald-100 rounded-lg text-emerald-950 whitespace-pre-wrap leading-relaxed font-medium">
+                    {refinedText}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <textarea
+                rows={8}
+                value={refinedText}
+                onChange={(e) => {
+                  setRefinedText(e.target.value);
+                  fetchDiagnosis(e.target.value);
+                }}
+                className="w-full text-xs text-slate-900 p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-sans leading-relaxed resize-none"
+              />
+            )}
           </div>
 
           {/* Natural Language Prompt Input */}
@@ -338,3 +365,4 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({
     </div>
   );
 };
+
