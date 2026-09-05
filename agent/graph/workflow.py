@@ -59,7 +59,8 @@ def run_agent_generation(
     tone: str = "engaging",
     target_platforms: Optional[List[str]] = None,
     thread_id: Optional[str] = None,
-    persona_dna: Optional[Dict[str, Any]] = None
+    persona_dna: Optional[Dict[str, Any]] = None,
+    generate_thread: bool = False
 ) -> Dict[str, Any]:
     """Runs generation pipeline up to the await_approval interrupt."""
     if not thread_id:
@@ -71,6 +72,9 @@ def run_agent_generation(
         "tone": tone,
         "persona_dna": persona_dna,
         "target_platforms": target_platforms or ["twitter", "linkedin"],
+        "generate_thread": generate_thread,
+        "thread_tweets": [],
+        "carousel_slides": [],
         "raw_draft": "",
         "critique": {},
         "critique_passed": False,

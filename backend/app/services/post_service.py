@@ -12,7 +12,8 @@ class PostService:
         topic: str,
         tone: str = "engaging",
         target_platforms: List[str] = None,
-        persona_id: Optional[str] = None
+        persona_id: Optional[str] = None,
+        generate_thread: bool = False
     ) -> Post:
         """Invokes LangGraph agent to generate draft and stores as pending_approval."""
         persona_dna = None
@@ -43,7 +44,8 @@ class PostService:
             topic=topic,
             tone=tone,
             target_platforms=target_platforms or ["twitter", "linkedin"],
-            persona_dna=persona_dna
+            persona_dna=persona_dna,
+            generate_thread=generate_thread
         )
         
         thread_id = agent_res["thread_id"]
@@ -54,6 +56,9 @@ class PostService:
             tone=tone,
             persona_id=persona_id,
             raw_content=state.get("raw_draft", ""),
+            is_thread=generate_thread,
+            thread_tweets=state.get("thread_tweets", []),
+            carousel_slides=state.get("carousel_slides", []), 
             platform_content=state.get("platform_posts", {}),
             status="pending_approval",
             critique=state.get("critique", {}),

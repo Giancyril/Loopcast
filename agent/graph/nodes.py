@@ -2,6 +2,7 @@ import os
 from typing import Dict, Any, Optional
 from agent.graph.state import AgentState
 from agent.tools.brand_rules import critique_draft, format_for_twitter, format_for_linkedin
+from agent.tools.thread_weaver import generate_thread_and_carousel
 from backend.app.core.config import settings
 
 def _generate_copy(topic: str, tone: str, feedback: str = None, persona_dna: Optional[Dict[str, Any]] = None) -> str:
@@ -98,9 +99,12 @@ def critique_node(state: AgentState) -> Dict[str, Any]:
     }
 
 def format_node(state: AgentState) -> Dict[str, Any]:
-    """Formats the approved draft into platform-specific variants."""
+    """Formats the approved draft into platform-specific variants, and generates threads/carousels if requested."""
     raw = state.get("raw_draft", "")
+    topic = state.get("topic", "Tech Trends")
     platforms = state.get("target_platforms") or ["twitter", "linkedin"]
+    persona_dna = state.get("persona_dna")
+    generate_thread = state.get("generate_thread", False)
     
     posts: Dict[str, str] = {}
     for p in platforms:
@@ -112,8 +116,15 @@ def format_node(state: AgentState) -> Dict[str, Any]:
         else:
             posts[p_lower] = raw
             
+    thread_data = generate_thread_and_carousel(topic, raw, persona_dna)
+    thread_tweets = thread_data["thread_tweets"]
+    carousel_slides = thread_data["carousel_slides"]
+
     return {
         "platform_posts": posts,
+        "is_thread": generate_thread,
+        "thread_tweets": thread_tweets,
+        "carousel_slides": carousel_slides,
         "approval_status": "pending_approval"
     }
 

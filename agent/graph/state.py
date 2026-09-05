@@ -5,6 +5,9 @@ class AgentState(TypedDict):
     tone: str
     persona_dna: Optional[Dict[str, Any]]
     target_platforms: List[str]
+    generate_thread: bool
+    thread_tweets: List[str]
+    carousel_slides: List[Dict[str, Any]]
     raw_draft: str
     critique: Dict[str, Any]
     critique_passed: bool
