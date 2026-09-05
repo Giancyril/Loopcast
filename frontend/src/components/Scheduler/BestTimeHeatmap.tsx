@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Clock, TrendingUp, Zap, Star } from 'lucide-react';
 
 interface HeatmapSlot {
@@ -31,6 +31,8 @@ interface BestTimeHeatmapProps {
   personaId?: string;
 }
 
+const DEFAULT_PLATFORMS: string[] = ['twitter', 'linkedin', 'instagram'];
+
 const PLATFORM_COLORS: Record<string, { bg: string; accent: string; border: string }> = {
   twitter: { bg: 'from-sky-500 to-blue-600', accent: 'text-sky-600', border: 'border-sky-200' },
   linkedin: { bg: 'from-blue-700 to-indigo-700', accent: 'text-blue-700', border: 'border-blue-200' },
@@ -55,55 +57,80 @@ function scoreToOpacity(score: number): string {
 }
 
 export const BestTimeHeatmap: React.FC<BestTimeHeatmapProps> = ({
-  platforms = ['twitter', 'linkedin', 'instagram'],
+  platforms = DEFAULT_PLATFORMS,
   contentType = 'single',
   personaId,
 }) => {
-  const [activePlatform, setActivePlatform] = useState<string>(platforms[0]);
+  const activePlatformsList = platforms.length > 0 ? platforms : DEFAULT_PLATFORMS;
+  const [activePlatform, setActivePlatform] = useState<string>(activePlatformsList[0] || 'twitter');
   const [data, setData] = useState<Record<string, PlatformData> | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [hoveredSlot, setHoveredSlot] = useState<HeatmapSlot | null>(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const resp = await fetch('/api/v1/best-times', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platforms, content_type: contentType, persona_id: personaId }),
-      });
-      if (!resp.ok) throw new Error('Failed to fetch');
-      const json = await resp.json();
-      setData(json.recommendations);
-    } catch {
-      // Use mock data for development
-      const mock: Record<string, PlatformData> = {};
-      for (const p of platforms) {
-        const heatmap: HeatmapSlot[] = [];
-        for (let w = 0; w < 7; w++) {
-          for (let h = 0; h < 24; h++) {
-            const isGood = [9, 12, 17].includes(h) && w < 5;
-            const isPeak = h === 12 && [1, 2, 3].includes(w);
-            const score = isPeak ? 95 : isGood ? 70 : Math.random() < 0.1 ? 30 : 0;
-            heatmap.push({ weekday: w, weekday_label: DAYS[w], hour: h, score, estimated_reach: Math.floor(score * 180), label: isPeak ? 'Peak' : isGood ? 'Good' : 'Average', next_occurrence: null });
-          }
-        }
-        mock[p] = {
-          heatmap,
-          top_recommendations: [
-            { weekday: 'Wed', hour_utc: 12, score: 95.0, estimated_reach: 17100, label: 'Peak', next_occurrence: new Date().toISOString() },
-            { weekday: 'Tue', hour_utc: 12, score: 88.0, estimated_reach: 15840, label: 'Peak', next_occurrence: new Date().toISOString() },
-            { weekday: 'Thu', hour_utc: 12, score: 80.0, estimated_reach: 14400, label: 'Good', next_occurrence: new Date().toISOString() },
-          ],
-        };
-      }
-      setData(mock);
-    } finally {
-      setLoading(false);
-    }
-  }, [platforms, contentType, personaId]);
+  const platformsKey = activePlatformsList.join(',');
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadBestTimes() {
+      try {
+        const resp = await fetch('/api/v1/best-times', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            platforms: activePlatformsList,
+            content_type: contentType,
+            persona_id: personaId || null,
+          }),
+        });
+        if (!resp.ok) throw new Error('API failed');
+        const json = await resp.json();
+        if (isMounted) {
+          setData(json.recommendations);
+          setLoading(false);
+        }
+      } catch {
+        if (!isMounted) return;
+        // Deterministic fallback mock data
+        const mock: Record<string, PlatformData> = {};
+        for (const p of activePlatformsList) {
+          const heatmap: HeatmapSlot[] = [];
+          for (let w = 0; w < 7; w++) {
+            for (let h = 0; h < 24; h++) {
+              const isGood = [9, 12, 17].includes(h) && w < 5;
+              const isPeak = h === 12 && [1, 2, 3].includes(w);
+              const score = isPeak ? 95 : isGood ? 70 : 0;
+              heatmap.push({
+                weekday: w,
+                weekday_label: DAYS[w],
+                hour: h,
+                score,
+                estimated_reach: isPeak ? 18000 : isGood ? 12000 : 0,
+                label: isPeak ? 'Peak' : isGood ? 'Good' : 'Off-peak',
+                next_occurrence: null,
+              });
+            }
+          }
+          mock[p] = {
+            heatmap,
+            top_recommendations: [
+              { weekday: 'Tue', hour_utc: 12, score: 98.0, estimated_reach: 19200, label: 'Peak', next_occurrence: new Date().toISOString() },
+              { weekday: 'Wed', hour_utc: 12, score: 92.0, estimated_reach: 18100, label: 'Peak', next_occurrence: new Date().toISOString() },
+              { weekday: 'Wed', hour_utc: 9, score: 87.0, estimated_reach: 17400, label: 'Peak', next_occurrence: new Date().toISOString() },
+            ],
+          };
+        }
+        setData(mock);
+        setLoading(false);
+      }
+    }
+
+    loadBestTimes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [platformsKey, contentType, personaId]);
 
   const platformData = data?.[activePlatform];
   const colors = PLATFORM_COLORS[activePlatform] || PLATFORM_COLORS.twitter;
@@ -121,7 +148,7 @@ export const BestTimeHeatmap: React.FC<BestTimeHeatmapProps> = ({
             <h3 className="text-white font-bold text-sm">Best Time to Post</h3>
           </div>
           <div className="flex gap-2">
-            {platforms.map(p => (
+            {activePlatformsList.map(p => (
               <button
                 key={p}
                 onClick={() => setActivePlatform(p)}
@@ -138,7 +165,7 @@ export const BestTimeHeatmap: React.FC<BestTimeHeatmapProps> = ({
         </div>
       </div>
 
-      <div className="p-6 space-y-5">
+      <div className="p-6 space-y-5 min-h-[360px]">
         {/* Top recommendations */}
         {platformData?.top_recommendations && (
           <div className="grid grid-cols-3 gap-3">
@@ -166,7 +193,7 @@ export const BestTimeHeatmap: React.FC<BestTimeHeatmapProps> = ({
 
         {/* Heatmap grid */}
         {loading ? (
-          <div className="flex items-center justify-center h-36">
+          <div className="flex items-center justify-center h-48">
             <div className="animate-spin w-6 h-6 border-2 border-slate-300 border-t-slate-700 rounded-full" />
           </div>
         ) : (
