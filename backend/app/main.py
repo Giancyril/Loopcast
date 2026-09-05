@@ -8,6 +8,7 @@ from backend.app.core.database import engine, Base
 from backend.app.api.posts import router as posts_router
 from backend.app.api.platforms import router as platforms_router
 from backend.app.api.scheduler import router as scheduler_router
+from backend.app.api.personas import router as personas_router
 from backend.app.services.scheduler_service import SchedulerService
 import backend.app.models.social
 
@@ -41,6 +42,7 @@ app.add_middleware(
 app.include_router(posts_router, prefix=settings.API_V1_STR)
 app.include_router(platforms_router, prefix=settings.API_V1_STR)
 app.include_router(scheduler_router, prefix=settings.API_V1_STR)
+app.include_router(personas_router, prefix=settings.API_V1_STR)
 
 @app.get("/health")
 def health_check():
