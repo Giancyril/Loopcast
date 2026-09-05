@@ -7,12 +7,29 @@ from backend.app.core.database import Base
 def generate_uuid():
     return str(uuid.uuid4())
 
+class Persona(Base):
+    __tablename__ = "personas"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    name = Column(String(100), nullable=False)
+    handle_or_tag = Column(String(50), nullable=True)
+    bio = Column(Text, nullable=True)
+    archetype = Column(String(50), default="founder")  # founder, explainer, growth_hacker, executive
+    tone_attributes = Column(JSON, default=dict)  # {"wit": 75, "formality": 30, "provocation": 60, "technical_depth": 80}
+    banned_words = Column(JSON, default=list)  # ["delve", "game-changer", "unleash"]
+    sample_hooks = Column(JSON, default=list)
+    target_audience = Column(String(255), default="Tech Builders & Creators")
+    is_default = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 class Post(Base):
     __tablename__ = "posts"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     topic = Column(String(255), nullable=False)
     tone = Column(String(50), default="engaging")
+    persona_id = Column(String(36), ForeignKey("personas.id"), nullable=True)
     raw_content = Column(Text, nullable=True)
     platform_content = Column(JSON, default=dict)  # {"twitter": "...", "linkedin": "..."}
     status = Column(String(50), default="pending_approval", index=True)  # pending_approval, approved, scheduled, published, rejected
@@ -24,6 +41,7 @@ class Post(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    persona = relationship("Persona", lazy="joined")
     logs = relationship("ApprovalLog", back_populates="post", cascade="all, delete-orphan")
 
 class PlatformConnection(Base):
